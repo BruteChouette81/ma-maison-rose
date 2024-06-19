@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-mamaisonrose-dev-93308-authRole",
+      "UnauthRoleArn": "arn:aws:iam::547209680205:role/amplify-mamaisonrose-dev-93308-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::547209680205:role/amplify-mamaisonrose-dev-93308-authRole",
+      "Region": "ca-central-1",
+      "DeploymentBucketName": "amplify-mamaisonrose-dev-93308-deployment",
+      "UnauthRoleName": "amplify-mamaisonrose-dev-93308-unauthRole",
+      "StackName": "amplify-mamaisonrose-dev-93308",
+      "StackId": "arn:aws:cloudformation:ca-central-1:547209680205:stack/amplify-mamaisonrose-dev-93308/779c4790-2e40-11ef-b58d-06edc9415f99",
+      "AmplifyAppId": "d3a8jyligdd6fg"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d3a8jyligdd6fg",
+          "type": "manual"
+        }
+      }
+    }
+  }
+}
