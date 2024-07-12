@@ -24,7 +24,7 @@ function Navbar () {
   
               
               <li class="nav-item">
-                <a class="nav-link" href="/products">Tout magasiner</a>
+                <a class="nav-link" href="/market">Tout magasiner</a>
   
               </li>
               

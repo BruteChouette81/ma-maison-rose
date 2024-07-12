@@ -1,0 +1,80 @@
+
+
+.nftbox {
+    float: left;
+    margin: 20px;
+    padding: 10px;
+}
+#itemimg {
+    width: auto;
+    height: 350px;
+ border-radius: 22px;
+}
+
+
+.DidBuilding {
+   
+    background-color: #F5F0EF;
+    border-radius: 22px;
+    padding: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.receipt {
+    margin: 20px;
+    padding: 10px;
+    height: auto;
+    
+    background-color: white;
+    
+    color: black;
+    border-radius: 6px;
+    float: left;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.submitPayment {
+    float: right;
+    background-color:aquamarine;
+}
+#lock-img {
+    height: 30px;
+    width: auto;
+}
+#cpl-img {
+    height: 30px;
+    width: auto;
+    border-radius: 10px;
+}
+
+.paypal-powered-by {
+    color: black;
+    
+}
+
+.payment-box {
+    margin: 15px;
+    padding: 10px;
+    padding-bottom: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: transparent;
+    color: black;
+
+}
+
+#chip-img {
+    height: 40px;
+    width: auto;
+    float: right;
+}
+
+#logo-img {
+    height: 60px;
+    width: auto;
+   
+}
+
+#buy {
+    width: 100%;
+}

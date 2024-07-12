@@ -1,0 +1,18 @@
+.market {
+    background-color: #F5F0EF;
+}
+
+.sideBar {
+    text-align: start;
+    
+}
+
+.sideBar button {
+    text-align: start;
+    color:#664346;
+    
+}
+
+.sideBar button:hover {
+    color: black;
+}

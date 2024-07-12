@@ -1,0 +1,51 @@
+oracle: 0x4e121a3dd0d76378DF6EdEF7079f91d026f7Ae17
+
+    CREDITS: 0x6CFADe18df81Cd9C41950FBDAcc53047EdB2e565
+    RNFT: 0xf70221aA45de1736944c2B7d033B0714E321fb1e
+    DDS:  0xa244B3e1e6Bd2ccf1D226F3E269D0Af88Ef86CEE
+
+    buying:  0x4128e82175Ed08c094F9C8E23Bf8acbbd1A594F2
+    minting:  0x666f393A06285c3Ec10895D4092d9Dc86aeFD45b
+    prooving:  0xabF75FC997bdF082D1d22E5Da6701C56e8A356D2
+
+
+data structure: 
+    - image ==> ipfs
+    - title ==> metadata
+    - description ==>metadata
+    - category ==> metadata
+    - price ==> dds.sol
+
+nfts.jsx:
+    - load items: get the item's token id ==> get the item's ipfs link 
+    - load metadata + image
+
+displaying: market ==> instaview ==> item (display a nftbox)
+
+//bg: #F5F0EF
+//title: #664346
+//button: #FFE7E3
+
+
+TODO:
+    SITE:
+    - connect payment  DONE ✔️
+    - make working for did/haswallet  DONE ✔️
+    - test payment  DONE ✔️ ==> add more things at some point
+    - add a small account page for items delevery
+    - add style
+    - connect with square gift cards (easy)
+    - add all items 
+    - at somepoint add refund
+    - translate
+
+    DASHBOARD:
+    - connect contracts for analysis (orders DONE ✔️ / payments (paypal api)) ==> add all contracts in aws db and import them DONE ✔️
+    - connect api for proofs/order confirmation DONE ✔️
+    - for payouts, a way to store the amount of money that the client can transfer. Not Direct payout after validation DONE ✔️
+    - connect square for gift cards and terminal (add no more than that for now)
+    - website builder connected with either aws amplify or ipfs
+    - add style
+    - translate
+
+

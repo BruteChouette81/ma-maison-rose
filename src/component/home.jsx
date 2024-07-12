@@ -5,10 +5,11 @@ function Home() {
     return (
         <div>
             <div class="mainBanner">
-                <h1>Ma Maison Rose</h1>
+                <h1 id="title2">Ma Maison Rose</h1>
                 <br />
                 <br />
-                <button class="btn btn-primary">Magasiner</button>
+                <br />
+                <a class="btn btn-primary" style={{"backgroundColor": "#ffe7e3", "color": "black", "borderColor": "#ffe7e3"}} href="/market">Magasiner</a>
                 
             </div>
             <br />

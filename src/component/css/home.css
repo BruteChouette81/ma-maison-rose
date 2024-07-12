@@ -2,3 +2,11 @@
     background-image: url("./download.png");
     height: 420px;
 }
+
+#title2 {
+    padding-top: 150px;
+    font-size: 60pt;
+    font-family:'open sans';
+    color:aliceblue;
+}
+
