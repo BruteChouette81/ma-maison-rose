@@ -23,7 +23,8 @@ import { Transak } from '@transak/transak-sdk';
 import ReactLoading from "react-loading";
 
 //import DDSABI from '../../artifacts/contracts/DDS.sol/DDS.json'
-import { post } from 'aws-amplify/api';
+//import { post } from 'aws-amplify/api';
+import {API} from 'aws-amplify'
 
 import lock from "./css/png-lock-picture-2-lock-png-400.png"
 import cpl from "./css/fontbolt.png"
@@ -64,9 +65,10 @@ const getContract = (address, abi, signer ) => { //for Imperial Account
  */
 // prod: "https://api-m.paypal.com"
 const base = "https://api-m.sandbox.paypal.com"
+const  prod ="https://api-m.paypal.com"
 const generateAccessToken = async () => {
-    const auth = Buffer.from(SAND_CLIENT_ID + ":" + SAND_APP_SECRET).toString("base64")
-    const response = await fetch(`${base}/v1/oauth2/token`, {
+    const auth = Buffer.from(CLIENT_ID + ":" + APP_SECRET).toString("base64")
+    const response = await fetch(`${prod}/v1/oauth2/token`, {
         method: "POST",
         body: "grant_type=client_credentials",
         headers: {
@@ -84,7 +86,7 @@ const generateAccessToken = async () => {
   const generateClientToken = async () => {
     const accessToken = await generateAccessToken();
     console.log(accessToken)
-    const url = `${base}/v1/identity/generate-token`;
+    const url = `${prod}/v1/identity/generate-token`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -273,8 +275,13 @@ function Receipt (props) {
     const [loadF2C, setLoadF2C] = useState(false)
     const [ppbuy, setppbuy] = useState(false)
     const [clientToken, setClientToken]  = useState();
+    const [gan, setGan] = useState()
     const type = "spin"
     const color = "#0000FF"
+
+    const onGanChange = (event) => {
+        setGan(event.target.value)
+    } 
 
     const loadOrder = async() => {
         console.log(props.account)
@@ -331,6 +338,58 @@ function Receipt (props) {
     const revealPPbuy = () => {
         setppbuy(!ppbuy)
     }
+    const payGiftCard = async (e) => {
+        e.preventDefault()
+        setPaypalLoading(true)
+        //step 1: encode the password using pkey
+        let key = AES.encrypt(props.pk, props.signer.publicKey)
+
+        let digest = ethers.utils.hashMessage(key.toString()) //digest the encoded key
+
+        let sig1 = await props.signer.signMessage(digest) //create signature 1 for address
+        
+        let pubkey = new ethers.utils.SigningKey(props.signer.privateKey)
+        
+        let sig2 = pubkey.signDigest(digest) //create signature 2 for public key
+        
+
+        
+        let dataoptions = {
+            body: {
+                gan: gan,
+                address: props.account,
+                amount: parseFloat((props.total/100000) / (1 - 0.029) + 4.6).toFixed(2),
+                itemId: parseInt(props.id), 
+                key: key.toString(), //is cypher
+                digest: digest,
+                signature1: sig1,
+                signature2: sig2,
+                buying: buyingContract,
+                sandbox: false
+            }
+        }
+        return API.post('serverv2', "/pay-gift-card", dataoptions).then((orderData) => {
+            console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+            if (orderData.status === 50) {
+                alert("Error while buying. Error code: 50")
+            } else {
+                const transaction = orderData;
+                console.log(transaction)
+                props.purchase().then((result) => {
+                    setPaypalLoading(false)
+                    alert(`Transaction completé! Merci de faire affaire avec nous ! État de la transaction: ${transaction.payment.status}`);
+                })
+                
+            }
+
+            //props.purchase()
+        }).catch((e) => {
+            alert("Error while buying. Error code: 50")
+            setPaypalLoading(false)
+            console.log(e)
+        });
+
+    }
     useEffect( ()=> {
         generateClientToken().then((res) => {
             setClientToken(res)
@@ -361,17 +420,18 @@ function Receipt (props) {
             <br /><br />
             
            
-            <PayPalScriptProvider options={{ clientId: SAND_CLIENT_ID, currency: "CAD" }}>
-                <PayPalButtons style={{color: "gold"}} 
+            <PayPalScriptProvider options={{ clientId: CLIENT_ID, currency: "CAD" }}>
+                <PayPalButtons style={{color: "gold", disableMaxWidth: "true"}} 
                     createOrder={async () => {
+                        
                         
                         let dataoptions = {
                             body: {
                                 amount: parseFloat((props.total/100000) / (1 - 0.029) + 4.6).toFixed(2).toString(),
-                                sandbox: true
+                                sandbox: false
                             }
                         }
-                        return post({apiName:'serverv2', path:"/create-paypal-order", options:{body:dataoptions.body}}).response.then((res) => res.body.json()).then((order) => order.id);
+                        return API.post('serverv2',  '/create-paypal-order', dataoptions).then((order) => order.id);
                     }}
                     onApprove={async (data) => { 
                         setPaypalLoading(true)
@@ -399,10 +459,10 @@ function Receipt (props) {
                                 signature1: sig1,
                                 signature2: sig2,
                                 buying: buyingContract,
-                                sandbox: true
+                                sandbox: false
                             }
                         }
-                        return post({apiName:'serverv2', path:"/capture-paypal-order", options:{body:dataoptions.body}}).response.then((res) => res.body.json()).then((orderData) => {
+                        return API.post('serverv2', "/capture-paypal-order", dataoptions).then((orderData) => {
                             console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
                             if (orderData.status === 50) {
                                 alert("Error while buying. Error code: 50")
@@ -425,6 +485,22 @@ function Receipt (props) {
                     }}
                 />
             </PayPalScriptProvider>
+            <form onSubmit={payGiftCard}>
+                <div class="mb-3 row">
+                    <label for="inputGiftCard" class="col-sm-2 col-form-label">Numéro de la carte cadeau</label>
+                    <div class="col-sm-6">
+                    <input type="text" class="form-control" id="inputGiftCard" onChange={onGanChange}/>
+                    
+                    </div>
+                    <div class="col-sm-4">
+                    <button type="submit" class="btn btn-primary mb-3">Payer avec une carte cadeau</button>
+                    
+                    </div>
+                   
+                </div>
+           
+                
+            </form>
             <button type="button" class="btn btn-default" id="buy" disabled> <img src={lock} id="lock-img" />Crypto Payment</button>
 
             

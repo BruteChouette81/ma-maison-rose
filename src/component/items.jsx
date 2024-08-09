@@ -2,18 +2,22 @@ import { useParams } from 'react-router-dom'
 import {useState, useEffect } from 'react';
 //import { useWeb3React } from "@web3-react/core"
 import { ethers } from 'ethers';
-import { post, put } from 'aws-amplify/api';
-import { uploadData } from 'aws-amplify/storage';
+//import { post } from 'aws-amplify/api';
+import { API, Storage } from 'aws-amplify'
 import { AES, enc } from "crypto-js"
 import DDSABI from '../abis/DDS.sol/DDS.json'
 import Credit from '../abis/credits2.sol/credits2.json'
 import AMMABI from '../abis/AM2.sol/AMM2.json'
+import './css/items.css'
 
-
+//storage.get("")
 //import injected from '../account/connector';
 
 import NftBox from './nfts';
 import Receipt from './receipt';
+import ReactLoading from "react-loading";
+const type = "spin"
+const color = "#0000FF"
 
 const MarketAddress = '0x710005797eFf093Fa95Ce9a703Da9f0162A6916C'; // goerli new test contract
 const DDSAddress = '0xa244B3e1e6Bd2ccf1D226F3E269D0Af88Ef86CEE' // 0x2F810063f44244a2C3B2a874c0aED5C6c28D1D87, 0xd860F7aA2ACD3dc213D1b01e2cE0BC827Bd3be46
@@ -89,6 +93,8 @@ function Item() {
 
     const [nexting, setNexting] = useState(false) //set this to true in order to pay
 
+    const [updateAccount, setUpdateAccount] = useState(false)
+
     const onFnameChanged = (event) => {
         setFname(event.target.value)
     }
@@ -134,6 +140,7 @@ function Item() {
         window.localStorage.setItem("walletAddress", newConnectedWallet.address)
         setAddress(newConnectedWallet.address)
         setFullname(fname + " " + lname)
+        setFulladdress(`${street}, ${city}`)
 
         //console.log(props.signer)
         const data = {
@@ -172,6 +179,96 @@ function Item() {
 
         
     }
+
+    function setS3Config(bucket, level) {
+        Storage.configure({
+            bucket: bucket,
+            level: level,
+            region: "ca-central-1",
+            identityPoolId: 'ca-central-1:85ca7a33-46b1-4827-ae75-694463376952'
+        })
+    }
+
+
+    const updateQuantity = async () => {
+        //check if quantity is bigger than zero
+        console.log(realItems)
+        
+        if ((realItems.score-1) > 0) {
+            //if quantity bigger than zero, Mint a new dds item 
+            var data = {
+                body: {
+                    address: realItems.seller,
+                    uri: realItems.image,
+                    MaxPrice: (realItems.price/100000), //Minimum price for item without fees
+                    numDays: 10,
+                    mintingAddress: "0x666f393A06285c3Ec10895D4092d9Dc86aeFD45b",
+                    ddsAddress: "0xa244B3e1e6Bd2ccf1D226F3E269D0Af88Ef86CEE",
+                }
+                
+            }
+
+            //console.log(data)
+
+            var url = "/oracleMint"
+                
+            
+            API.post('serverv2', url, data).then((response) => {
+                console.log(parseInt(response.hex))
+                if (response.status === 10) {
+                    alert("Error code 10, Mint error")
+                } else {
+                    //then update item in db
+                    var data = {
+                        body: {
+                            address: realItems.seller.toLowerCase(),
+                            oldid: parseInt(id),
+                            newid: parseInt(response.hex), //market item id
+                            score: (realItems.score-1), //quantitie tracker
+                        }
+                    }
+        
+                    var url = "/updateScore"
+        
+                    API.post('serverv2', url, data).then((response) => {
+                        console.log(response)
+                        return true
+                        //setCreateLoading(false)
+                        //console.log("Item is Updated")
+                        //setItemLink(["/item/" +  data.body.itemid])
+                    })
+                }
+                
+               
+            }).catch((e) => {
+                //setCreateLoading(false)
+                //alert("Error while creating the Item... check console for more. Error code: 10")
+                console.log(e)
+                return false
+            })
+        } else {
+            var data = {
+                body: {
+                    address: window.localStorage.getItem("walletAddress").toLowerCase(),
+                    oldid:  parseInt(id),
+                    score: 0, //quantitie tracker
+                }
+            }
+
+            var url = "/updateScore"
+
+            API.post('serverv2', url, data).then((response) => {
+                console.log(response)
+                return true
+                //setCreateLoading(false)
+                //console.log("Item is Updated")
+                //setItemLink(["/item/" +  data.body.itemid])
+            })
+
+        }
+    }
+
+
     const realPurchase = async () => {
         try {
             //setBuyloading(true)
@@ -189,41 +286,103 @@ function Item() {
             let did = window.localStorage.getItem("did")
             let res1 = AES.decrypt(did, password) //props.signer.privateKey
             let res = JSON.parse(res1.toString(enc.Utf8));
-            const data = {
-                Waddress: res.Waddress,
-                pk: res.pk,
-                first_name: res.first_name,
-                last_name: res.last_name,
-                email: res.email,
-                mobileNumber: res.mobileNumber, //"+19692154942"
-                dob: "1994-11-26", // got to format well
-                realPurchase: res.realPurchase.push([parseInt(realItems.tokenId), realItems.itemId]),
-                address: {
-                    addressLine1: res.address.addressLine1,
-                    city: res.address.city,
-                    state: res.address.state,
-                    postCode: res.address.postalCode,
-                    countryCode: res.address.countryCode
+            if (res.realPurchase) {
+                const data = {
+                    Waddress: res.Waddress,
+                    pk: res.pk,
+                    first_name: res.first_name,
+                    last_name: res.last_name,
+                    email: res.email,
+                    mobileNumber: res.mobileNumber, //"+19692154942"
+                    dob: "1994-11-26", // got to format well
+                    realPurchase: [parseInt(realItems.tokenId), parseInt(realItems.itemId)],
+                    address: {
+                        addressLine1: res.address.addressLine1,
+                        city: res.address.city,
+                        state: res.address.state,
+                        postCode: res.address.postalCode,
+                        countryCode: res.address.countryCode
+                    }
                 }
-            }
-            console.log(data)
-    
-            let stringdata = JSON.stringify(data)
-            //let bytedata = ethers.utils.toUtf8Bytes(stringdata)
-    
-            //console.log(props)
-            //console.log(password)
-            var encrypted = AES.encrypt(stringdata, password)
-            //hash the data object and store it in user storage
-            //ethers.utils.computeHmac("sha256", key, bytedata)
-            
+                console.log(data)
+        
+                let stringdata = JSON.stringify(data)
+                //let bytedata = ethers.utils.toUtf8Bytes(stringdata)
+        
+                //console.log(props)
+                //console.log(password)
+                var encrypted = AES.encrypt(stringdata, password)
+                //hash the data object and store it in user storage
+                //ethers.utils.computeHmac("sha256", key, bytedata)
                 
-            window.localStorage.setItem("did", encrypted);
-            //console.log(response)
-            const results = await uploadData(`${realItems.seller.toLowerCase()}/${address.toLowerCase()}.txt`, window.localStorage.getItem("did")).result;
-            console.log(results)    
-            //setBuyloading(false)
-            return results
+                    
+                window.localStorage.setItem("did", encrypted);
+                //console.log(response)
+                setS3Config("didtransfer", "public");
+                Storage.put(`${realItems.seller.toLowerCase()}/${address.toLowerCase()}.txt`, window.localStorage.getItem("did")).then(async(results) =>  { // add ".png"
+                    console.log(results) 
+                    console.log(realItems)
+                    updateQuantity().then((res)=> {
+                        console.log(res)
+                        //setBuyloading(false)
+                        return results
+
+                    })
+                   
+                
+                })
+                
+
+            } else {
+                const data = {
+                    Waddress: res.Waddress,
+                    pk: res.pk,
+                    first_name: res.first_name,
+                    last_name: res.last_name,
+                    email: res.email,
+                    mobileNumber: res.mobileNumber, //"+19692154942"
+                    dob: "1994-11-26", // got to format well
+                    realPurchase: [parseInt(realItems.tokenId), realItems.itemId],
+                    address: {
+                        addressLine1: res.address.addressLine1,
+                        city: res.address.city,
+                        state: res.address.state,
+                        postCode: res.address.postalCode,
+                        countryCode: res.address.countryCode
+                    }
+                }
+                console.log(data)
+        
+                let stringdata = JSON.stringify(data)
+                //let bytedata = ethers.utils.toUtf8Bytes(stringdata)
+        
+                //console.log(props)
+                //console.log(password)
+                var encrypted = AES.encrypt(stringdata, password)
+                //hash the data object and store it in user storage
+                //ethers.utils.computeHmac("sha256", key, bytedata)
+                
+                    
+                window.localStorage.setItem("did", encrypted);
+                //console.log(response)
+                setS3Config("didtransfer", "public");
+                Storage.put(`${realItems.seller.toLowerCase()}/${address.toLowerCase()}.txt`, window.localStorage.getItem("did")).then(async (results) => { // add ".png"
+                    console.log(results) 
+                    console.log(realItems)
+                    updateQuantity().then((res)=> {
+                        console.log(res)
+                        //setBuyloading(false)
+                        return results
+
+                    })
+                
+                })
+                //setBuyloading(false)
+                
+
+            }
+           
+          
                
 
                 
@@ -259,12 +418,73 @@ function Item() {
         
     }
 
+    const updateID = async(event) => {
+        event.preventDefault()
+        if (city !== "" && state !== "" && code !== "" && country !== "" && street !== "" && phone !== "" && email !== "" && password !== "") {
+            let did = window.localStorage.getItem("did")
+            let res1 = AES.decrypt(did, password) //props.signer.privateKey
+            let res = JSON.parse(res1.toString(enc.Utf8));
+           
+            const data = {
+                Waddress: res.Waddress,
+                pk: res.pk,
+                first_name: res.first_name,
+                last_name: res.last_name,
+                email: email,
+                mobileNumber: phone, //"+19692154942"
+                dob: "1994-11-26", // got to format well
+                realPurchase: res.realPurchase,
+                address: {
+                    addressLine1: street,
+                    city: city,
+                    state: state,
+                    postCode: code,
+                    countryCode: country
+                }
+            }
+            console.log(data)
+            let stringdata = JSON.stringify(data)
+            var encrypted = AES.encrypt(stringdata, password)
+            window.localStorage.setItem("did", encrypted);
+            alert("Modifications enregistrées!")
+
+        } else {
+            alert("Vous devez entrer vos informations... Veuiller réessayer ou canceler...")
+        }
+
+        
+       
+
+
+    }
+
   
     
     const connectUsingPassword = (e) => {
         if (e) {e.preventDefault()}
         //setPassword(passwordInp)
-        let did = window.localStorage.getItem("did")
+        if (window.sessionStorage.getItem("password")) {
+            let did = window.localStorage.getItem("did")
+        let res1 = AES.decrypt(did, window.sessionStorage.getItem("password")) //props.signer.privateKey
+        console.log(password)
+        try {
+                let res = JSON.parse(res1.toString(enc.Utf8));
+                if (!res.email) {
+                    alert("Vous devez créer une Identitée Décentralizée avant d'accèder à l'Atelier")
+                    window.location.replace("/")
+                }
+                if (res.pk) {
+                    setFulladdress(`${res.address.addressLine1}, ${res.address.city}`)
+                    //window.sessionStorage.setItem("password", password)
+                    getPrivateKey(window.localStorage.getItem("walletAddress"), res.pk)
+                    //setGetPassword(false)
+                    //setNexting(true)
+                }
+        } catch(e) {
+                alert("wrong password");
+        }
+        } else {
+            let did = window.localStorage.getItem("did")
         let res1 = AES.decrypt(did, password) //props.signer.privateKey
         console.log(password)
         try {
@@ -283,6 +503,8 @@ function Item() {
         } catch(e) {
                 alert("wrong password");
         }
+        }
+        
     }
     
     function GetPassword() {
@@ -321,6 +543,8 @@ function Item() {
         itemslist.then(res => {
             setRealItems(res)
             console.log(res)
+            setNexting(true)
+            //console.log(parseFloat((parseInt(res.price)/100000) / (1 - 0.029) + 4.6).toFixed(2).toString())
         })
             
        
@@ -357,6 +581,8 @@ function Item() {
         if(item.sold) {
             alert("item already sold, redirecting to market!")
             window.location.replace("/market")
+            
+
         }
 
         else {
@@ -371,7 +597,7 @@ function Item() {
             //console.log(typeof(item))
             //console.log(item)
             
-            await post({apiName:'serverv2', path:url, options:{body:data.body}}).response.then((res) => res.body.json()).then((response) => {
+            await API.post('serverv2',  url, data).then((response) => { //response.then((res) => res.body.json()).
                 for(let i=0; i<=response.ids.length; i++) { //loop trought every listed item of an owner 
                     if (response.ids[i] == item.itemId - 1) { // once you got the item we want to display:
                                 newItem.itemId = item.itemId
@@ -394,6 +620,16 @@ function Item() {
         
     
     }
+
+    const createNewAccount = () => {
+        //first delete actual account
+        window.localStorage.removeItem("walletAddress")
+        window.localStorage.removeItem("did")
+        window.localStorage.removeItem("hasWallet")
+        window.location.reload()
+
+    }
+
 
     useEffect(() => {
         
@@ -428,7 +664,7 @@ function Item() {
                     //console.log(typeof(item))
                     //console.log(item)
                     
-                    await post({apiName:'serverv2', path:url, options:{body:data.body}}).response.then((res) => res.body.json()).then((response) => {
+                    await API.post('serverv2',  url, data).then((response) => {
                         for(let i=0; i<=response.ids.length; i++) { //loop trought every listed item of an owner 
                             if (response.ids[i] == item.itemId - 1) { // once you got the item we want to display:
                                         newItem.itemId = item.itemId
@@ -459,12 +695,14 @@ function Item() {
         } else {
             if(window.sessionStorage.getItem("password")) {
                 setGetPassword(false);
-                setNexting(true)
-
-                passwordInp = window.sessionStorage.getItem("password");
-                //setPassword(passwordInp)
+                setPassword(window.sessionStorage.getItem("password"))
+               
+                
+                
                 connectUsingPassword()
+                
                 //connection("true")
+               
 
 
             } else {
@@ -495,7 +733,7 @@ function Item() {
                     //console.log(typeof(item))
                     //console.log(item)
                     
-                    await post({apiName:'serverv2', path:url, options:{body:data.body}}).response.then((res) => res.body.json()).then((response) => {
+                    await API.post('serverv2',  url, data).then((response) => {
                         for(let i=0; i<=response.ids.length; i++) { //loop trought every listed item of an owner 
                             if (response.ids[i] == item.itemId - 1) { // once you got the item we want to display:
                                         newItem.itemId = item.itemId
@@ -529,20 +767,29 @@ function Item() {
         
         //mintNFT(account) mint test nft
     }, [])
+
+    const onUpdateChange = () => {
+        setUpdateAccount(!updateAccount)
+
+    }
+
     return ( 
         //getPassword ? <GetPassword /> :
         <div class="item">
             <h2>Id: {id}</h2>
+            
             <div class="row">
                 <div class="col">
-                <NftBox key={(realItems?.itemId)?.toString()} real={true} tokenId={realItems?.tokenId} myitem={false} id={parseInt(realItems?.itemId)} name={realItems?.name} description={realItems?.description} price={parseInt(realItems?.price)} seller={realItems?.seller} image={realItems?.image}  displayItem={displayItem} account={address} signer={userwallet} credits={credits} dds={dds} password={password} amm={amm}/> 
+                {realItems ? <NftBox key={(realItems?.itemId)?.toString()} isMarket={true} tokenId={realItems?.tokenId} id={parseInt(realItems?.itemId)} name={realItems?.name} description={realItems?.description} price={parseInt(realItems?.price)} seller={realItems?.seller} image={realItems?.image}  displayItem={displayItem} account={address} signer={userwallet} credits={credits} dds={dds} password={password} amm={amm}/> : <div style={{"textAlign": "start"}}><ReactLoading type={type} color={color}
+            height={200} width={200} /><h5>{window.localStorage.getItem("language") == "en" ? "Loading..." : "Chargement..." }</h5></div>}
                 </div>
                 <div class="col">
                 <div class="checkout">
                 {window.localStorage.getItem("hasWallet") ? getPassword ? (
                     <div class="getPassword">
                     <form onSubmit={connectUsingPassword}> 
-                    <h3>Entrez votre mot de passe</h3>
+                    <h2>Vous avez deja magasiner avec Ma Maison Rose</h2>
+                    <h3>Entrez votre mot de passe ou <button type="button" class="btn btn-link" onClick={() => {createNewAccount()}}>creer un nouveau compte</button></h3> 
                         <br />
                         <div class="mb-3 row">
                             <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
@@ -555,9 +802,30 @@ function Item() {
                     </form>
                 </div>
                 ):
-                <div class="DidBuilding">
-                    <p>Sending to: {fulladdress}</p>
-                    {nexting ? <Receipt account={address} id={parseInt(realItems?.itemId)} signer={userwallet} total={parseInt(realItems?.price)} purchase={realPurchase} pk={password}/> : ""}
+                <div class="DidUpdate">
+                    <h3>Envoi au: {fulladdress} <button type="button" class="btn btn-link"  style={{"float": "right"}} onClick={() => {onUpdateChange()}}>[update account]</button> 
+                        {updateAccount ? ( <form onSubmit={updateID}>
+                                
+                                    <input type="text" id="country" name="country" class="form-control" placeholder="country : CA " onChange={onCountryChanged}/>
+                                    <br />
+                                    <input type="text" id="state" name="state" class="form-control" placeholder="state : QC" onChange={onCityChanged}/>
+                                    <br />
+                                    <input type="text" id="city" name="city" class="form-control" placeholder="city : Quebec" onChange={onStateChanged}/>
+                                    <br />
+                                    <input type="text" id="street" name="street" class="form-control" placeholder="street address : 1 example road" onChange={onStreetChanged}/>
+                                    <br />
+                                    <input type="text" id="code" name="code" class="form-control" placeholder="Postal code : 000 000" onChange={onCodeChanged}/>
+                                    <br />
+                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone : 14188889065" onChange={onPhoneChanged}/>
+                                    <br />
+                                    <input type="text" id="email" name="email" class="form-control" placeholder="Email : test@example.com" onChange={onEmailChanged}/>
+                                    <br />
+                                    <input type="submit" class="btn btn-primary" value="Next" />
+                                </form>) : ""}
+                               
+                    
+                    </h3> 
+                    {nexting ? window.sessionStorage.getItem("password") ? <Receipt account={address} id={parseInt(realItems?.itemId)} signer={userwallet} total={parseInt(realItems?.price)} purchase={realPurchase} pk={window.sessionStorage.getItem("password")}/> : <Receipt account={address} id={parseInt(realItems?.itemId)} signer={userwallet} total={parseInt(realItems?.price)} purchase={realPurchase} pk={password}/> : ""}
                 </div>
                 : <div class="DidBuilding">
                                 <p>Entrez vos informations de livraison afin de proceder au paiement</p>
@@ -585,6 +853,7 @@ function Item() {
                                     <input type="submit" class="btn btn-primary" value="Next" />
                                 </form>
                                 {nexting ? <Receipt account={address} id={parseInt(realItems?.itemId)} signer={userwallet} total={parseInt(realItems?.price)} purchase={realPurchase} pk={password}/> : ""}
+                                
           </div>}
 
             </div>

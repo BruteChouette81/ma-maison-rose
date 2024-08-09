@@ -26,7 +26,7 @@ function Home() {
             <div class="row" style={{"margin": "200px"}}>
                 <div class="col">
                     <div class="address">
-                        <h2>
+                        <h2  id="address">
                             3849 Chemin de Tilly <br />
                             Saint-Antoine-de-Tilly <br />
                             QC , G0S 2C0 <br />
@@ -37,11 +37,11 @@ function Home() {
                 </div>
                 <div class="col">
                     <div class="ouverture">
-                    <p>Mercredi : 11 à 17h</p>
-                    <p>Jeudi : 11 à 17h</p>
-                    <p>Vendredi : 11 à 17h</p>
-                    <p>Samedi : 10 à 17h</p>
-                    <p>Dimanche : 10 à 17h</p>
+                    <p id="ouverture-1">Mercredi : 11 à 17h</p>
+                    <p id="ouverture-2">Jeudi : 11 à 17h</p>
+                    <p id="ouverture-3">Vendredi : 11 à 17h</p>
+                    <p id="ouverture-4">Samedi : 10 à 17h</p>
+                    <p id="ouverture-5">Dimanche : 10 à 17h</p>
                     </div>
                 </div>
             </div>

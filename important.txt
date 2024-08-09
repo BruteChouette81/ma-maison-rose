@@ -32,20 +32,64 @@ TODO:
     - connect payment  DONE ✔️
     - make working for did/haswallet  DONE ✔️
     - test payment  DONE ✔️ ==> add more things at some point
-    - add a small account page for items delevery
-    - add style
-    - connect with square gift cards (easy)
+    - connect with square gift cards (easy)  DONE ✔️ ==> in checkout: https://connect.squareup.com/v2/gift-cards/from-gan ==> response.gift_card.id ==>  https://connect.squareupsandbox.com/v2/orders ==> https://connect.squareupsandbox.com/v2/payments ==> validate payment with contract DONE ✔️
     - add all items 
     - at somepoint add refund
+    - add a small account page for items delevery
+    - get the tags in DONE ✔️ 
+    - optimize /style market page -> fix the long item loading bug (also in dashboard) ==> new methot of loading  DONE ✔️ 
     - translate
+    - add style
+    - error overlay: iframe{display: none;}
+    - error gateway timeout: still proceed ==> continue to test
+
 
     DASHBOARD:
     - connect contracts for analysis (orders DONE ✔️ / payments (paypal api)) ==> add all contracts in aws db and import them DONE ✔️
-    - connect api for proofs/order confirmation DONE ✔️
+    - add all items in the order page  DONE ✔️
+    - connect api for proofs/order confirmation DONE ✔️ ==> delete + new methot of loading everywhere
     - for payouts, a way to store the amount of money that the client can transfer. Not Direct payout after validation DONE ✔️
-    - connect square for gift cards and terminal (add no more than that for now)
-    - website builder connected with either aws amplify or ipfs
+    - connect square for gift cards and terminal (add no more than that for now) DONE ✔️ 
+    - device pairing DONE ✔️ 
+    - website builder connected with either aws amplify or ipfs ==> clear out how we access the data ==> upload to s3 DONE ✔️ 
+    - two buttons to sign in without the website builder DONE ✔️
+    - direct payout two options: bank data (we manage manually creating another escrow account) or direct paypal waiting for payfac
+    - upload inventory of items and quantities, tracking device payment through webhook DONE ✔️ 
     - add style
     - translate
+    - analytic: payments: list payments api from square + add money from online using paypal api
+    for items: two modes: days and mounths. for mounths: get last 12 mounths 
+
+    EVENTUALLY all switch for decentralized
+    when pushing item to db (eventually ipfs metadata) we include tags and quantities. When buying we update quantities and push new items to dds as a replacement ==> update the id. When no more ==> out of stock
+
+seller id: 
+did: U2FsdGVkX19Kmf5w58WgwURvczW1RZ5EFoq3syUn+BKleRjyqDe3TuglWoaBEX8AIVcZbnhgnlGoejmTc6BYb87IPOobFRpnCStGztqXqxdQ1ln74UMadMN2iqIQqOhKYyvoM8vXoz9ROOefsNgnYzieObGF4I0hxrbO98VFBLYB4TgxTQwQXqVTrO3G6DBrA1sxGVdhpRoZs2Qr6fz0lOEDRMbzS4075IMx6HwJVOyf0NOGPqAEv+npVRNKdXEneyEuZqXHzlVr7VQVX9eN68OW+PgbDwzw4a4efyo4nwbSU80NKblUtctEef+zbkVtdl3C5PokyLdjiQL109o8uxVBMWN/yx0bB2FDrNlkVgfujaUv5xddH6XuGIlB7cts5UN8dnX8Q5pGGYhpYpNh/ojKWrILwS0zeF+S6V9tvbMITxe+MHD+Yt7+VNeTMhlQE85wYcazgRaW+Yl+RPONtMHZSt/uTPs18ptVdW9m/td6JvyQ8fD+7/vts5G0pbfnLD22tQ3APFyeLYRkFUODNf1ozmNk6wEgmhuSwH0okJxiQh+H23XHNiUNkgve2tvH0srSrIF+Ykt42XN8Rx/cQg==
+walletAddress: 0x3190b9754f22dd2b0514feff6bd299ee7514c777
+hasWallet: true
+
+2nd id: 
+did: U2FsdGVkX18RGaQWRVRbvw7sz09WvsSTKyxfFv5u3IzpZQaQ6cHOZgp9JCSwej2SCylhYS9PwleT2CtSClxf1w1WXYcwSCxGRXHCOQjG81wf6m/RAibUl9rFValAeUnkp1Dahg6v3VOwBBgXTQuKwtv/ImayAmtMTbe9yXs4ZO8dsuLohYqik+KaMDyaJ4dKmBXnTAHl+zUWRzXdARVkWJye4iFokF/PkAwnVlo0HMqiRO0IyUNdmHREFwx+XLaUgEwff2EPl3ryNp9Rihz0k1ZdFrEdO5TFYZtqvkWmlZAVdESl8gDABBHFpZF6WoYVO/lWkFMqwHoYJGqKghDxdnO/f6SJydW6I/gQXySq0Dux0ssVRCfpwmHmwtX3b/aw8b2sWaN9HLETBgkkP4++XBcmFD/UHS35BycZrlza8A1EWqSxQD51gkquUkX56fgiORW/n3TYkKFZGiCaY+W61YnR+F7khmGGYEqMujKaSDv00mKuE0FHoHp4dinGz9d5ejuQC6ZQ4HFyl4Glzzh0JrQOM+S+SYfwrqrhoeH24oLvygNekNu3vT6iRXG3jL0/FWf9JoT2ECWP4Zpw7q0E8Q==
+walletAddress: 0x0FcB03b5C04AC603680921ac9B1894D0919a767F
+hasWallet: true
+
+
+
+plan for step 2: 
+
+    - create square app 
+    - create fee red sys: 
+        1: fee red sys must centralized all payment using helcim partnership
+        2: once payment is has been transfer (1.6% fee), it must automaticly land in a bank "escrow" account while waiting for e transfer
+        3: e transfer the amount to blockchain using paytrie
+        4: build full on algo for fees, compounding and strategies for sellers
+
+        3: e transfer helper if helcim cant do https://docs.vopay.com/reference/interacbulkpayoutpost
+    - create shopify app
+    - make dashboard for multiple clients
+    - have a better payment solution (integrate helcim)
+    - redo website 
+    - add partnership with figma for website builder in partner connection
+    - incorporate + contracts
 
 

@@ -16,6 +16,28 @@
         "amplifyhosting": {
           "appId": "d3a8jyligdd6fg",
           "type": "manual"
+        },
+        "S3AndCloudFront": {}
+      },
+      "auth": {
+        "mamaisonrose433a29e5": {
+          "userPoolId": "ca-central-1_PpgocuiOa",
+          "userPoolName": "client3651e7fb_userpool_3651e7fb-dev",
+          "webClientId": "3e5qk8i1f53cp415ou2h26lpn9",
+          "nativeClientId": "4ju389uiaouptsfoqjpc5kgu80",
+          "identityPoolId": "ca-central-1:85ca7a33-46b1-4827-ae75-694463376952",
+          "identityPoolName": "client3651e7fb_identitypool_3651e7fb__dev",
+          "allowUnauthenticatedIdentities": true,
+          "authRoleArn": "arn:aws:iam::547209680205:role/amplify-client-dev-205313-authRole",
+          "authRoleName": "amplify-client-dev-205313-authRole",
+          "unauthRoleArn": "arn:aws:iam::547209680205:role/amplify-client-dev-205313-unauthRole",
+          "unauthRoleName": "amplify-client-dev-205313-unauthRole"
+        }
+      },
+      "storage": {
+        "mamaisonrose6d24264c": {
+          "bucketName": "didtransfer",
+          "region": "ca-central-1"
         }
       }
     }

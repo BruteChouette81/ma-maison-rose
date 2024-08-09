@@ -29,7 +29,7 @@ function Navbar () {
               </li>
               
               <li class="nav-item">
-                 <a class="nav-link" href="/about"> Cartes cadeaux</a> 
+                 <a class="nav-link" href="https://squareup.com/gift/ML9W0KFQCNJMJ/order"> Cartes cadeaux</a> 
   
               </li>
             

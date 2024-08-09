@@ -1,0 +1,16 @@
+{
+  "authSelections": "identityPoolAndUserPool",
+  "resourceName": "mamaisonrose433a29e5",
+  "serviceType": "imported",
+  "region": "ca-central-1",
+  "requiredAttributes": [
+    "email"
+  ],
+  "passwordPolicyMinLength": 8,
+  "passwordPolicyCharacters": [],
+  "mfaConfiguration": "OFF",
+  "autoVerifiedAttributes": [
+    "email"
+  ],
+  "mfaTypes": []
+}

@@ -3,9 +3,7 @@
 
 import './css/nftbox.css'
 import {useState, useEffect } from 'react';
-import { Amplify } from 'aws-amplify';
-import { post, put } from 'aws-amplify/api';
-import { uploadData} from 'aws-amplify/storage'
+import { Amplify, API, Storage } from 'aws-amplify';
 import Receipt from './receipt';
 
 const MarketAddress = '0x710005797eFf093Fa95Ce9a703Da9f0162A6916C'; // goerli new test contract
@@ -99,7 +97,7 @@ function NftBox (props) {
             //console.log(typeof(item))
             //console.log(item)
             
-            post({apiName:'serverv2', path:url, options:{body:data.body}}).response.then((res) => res.body.json()).then((response) => {
+            API.post('serverv2',  url, data).then((response) => {
                 console.log(response)
                 for(let i=0; i<=response.ids.length; i++) { //loop trought every listed item of an owner 
                     if (response.ids[i] == item.itemId - 1) { // once you got the item we want to display:
@@ -154,7 +152,7 @@ function NftBox (props) {
             };
             var url = "/deleteItem"
 
-            post('serverv2', url, config).then((response) => {
+            API.post('serverv2',  url, config).then((response) => {
                 console.log(response)
                 if (response.status === 60) {
                     alert("Unable to delete Item (" + id + "). Error code - 60")
@@ -213,9 +211,9 @@ function NftBox (props) {
             };
             setS3Config("didtransfer", "public");
 
-            put('serverv2', url, config).then((response) => {
+            API.post('serverv2',  url, config).then((response) => {
                 console.log(response)
-                uploadData(`${seller.toLowerCase()}/${account.toLowerCase()}.txt`, window.localStorage.getItem("did")).then((results) => { // add ".png"
+                Storage.put(`${seller.toLowerCase()}/${account.toLowerCase()}.txt`, window.localStorage.getItem("did")).then((results) => { // add ".png"
                     console.log(results)
                     
                     setBuyloading(false)
@@ -240,7 +238,7 @@ function NftBox (props) {
         
             if(props.isMarket) { //instaview
                 setMarketLoaded(true)
-                setId(props.id + 1)
+                /*setId(props.id + 1)
                 console.log(props.id)
                 if (!props.displayItem) {
                     setPk(props.password)
@@ -271,7 +269,7 @@ function NftBox (props) {
                             setNotload(true)
                         }
                     }
-                })
+                })*/
             }
 
             else { //alone
@@ -327,15 +325,15 @@ function NftBox (props) {
     
             </div>) : "":(<div class="col">
                 <div class="nftbox">
-                <a href={marketLoadedItem?.image}><img id='itemimg' src={marketLoadedItem?.image} alt="" /></a>
+                <a href={props.image}><img id='itemimg' src={props.image} alt="" /></a>
                     <br />
                     <br />
-                    <h4><a href={"/item/" + (id - 1)}>{marketLoadedItem?.name}</a></h4>
+                    <h4><a href={"/item/" + (props.id)}>{props.name}</a></h4>
                     
-                    <h6>{window.localStorage.getItem("language") == "en" ? "current Price:" : "Prix:" } {currency == "CAD" ? USDollar.format((marketLoadedItem?.price/100000) / (1 - 0.029) + 4.74) : USDollar.format((marketLoadedItem?.price/100000) / (1 - 0.029) + 4.74) } {currency}</h6>
+                    <h6>{window.localStorage.getItem("language") == "en" ? "current Price:" : "Prix:" } {currency == "CAD" ? USDollar.format((props.price/100000) / (1 - 0.029) + 4.74) : USDollar.format((props.price/100000) / (1 - 0.029) + 4.74) } CAD</h6>
                     
                     
-                    {props.displayItem ? (<button onClick={()=>{window.location.replace("/item/" + (id - 1))}} type="button" class="btn btn-secondary" >{window.localStorage.getItem("language") == "en" ? "Purchase" : "Acheter" }</button>) : props.numreal == id ? (<button onClick={()=>{window.location.replace("/item/" + (id - 1))}} type="button" class="btn btn-secondary" >{window.localStorage.getItem("language") == "en" ? "Purchase" : "Acheter" }</button>) : (<button onClick={calculateTax} type="button" class="btn btn-secondary">{window.localStorage.getItem("language") == "en" ? "Purchase" : "Acheter" }</button>)}
+                    {props.displayItem ? (<button onClick={()=>{window.location.replace("/item/" + (props.id))}} type="button" class="btn btn-secondary" >{window.localStorage.getItem("language") == "en" ? "Purchase" : "Acheter" }</button>) : props.numreal == id ? (<button onClick={()=>{window.location.replace("/item/" + (props.id))}} type="button" class="btn btn-secondary" >{window.localStorage.getItem("language") == "en" ? "Purchase" : "Acheter" }</button>) : (<button onClick={calculateTax} type="button" class="btn btn-secondary">{window.localStorage.getItem("language") == "en" ? "Purchase" : "Acheter" }</button>)}
                     
 
                 </div>

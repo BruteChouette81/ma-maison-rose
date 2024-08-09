@@ -1,5 +1,18 @@
 {
+  "auth": {
+    "mamaisonrose433a29e5": {
+      "customAuth": false,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito",
+      "serviceType": "imported"
+    }
+  },
   "hosting": {
+    "S3AndCloudFront": {
+      "providerPlugin": "awscloudformation",
+      "service": "S3AndCloudFront"
+    },
     "amplifyhosting": {
       "providerPlugin": "awscloudformation",
       "service": "amplifyhosting",
@@ -7,6 +20,94 @@
     }
   },
   "parameters": {
+    "AMPLIFY_auth_mamaisonrose433a29e5_allowUnauthenticatedIdentities": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_authRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_authRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_identityPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
+    "AMPLIFY_auth_mamaisonrose433a29e5_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "mamaisonrose433a29e5"
+        }
+      ]
+    },
     "AMPLIFY_hosting_amplifyhosting_appId": {
       "usedBy": [
         {
@@ -22,6 +123,30 @@
           "resourceName": "amplifyhosting"
         }
       ]
+    },
+    "AMPLIFY_storage_mamaisonrose6d24264c_bucketName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "mamaisonrose6d24264c"
+        }
+      ]
+    },
+    "AMPLIFY_storage_mamaisonrose6d24264c_region": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "mamaisonrose6d24264c"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "mamaisonrose6d24264c": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3",
+      "serviceType": "imported"
     }
   }
 }
